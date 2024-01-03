@@ -1,6 +1,7 @@
 #!/bin/bash
 
 
+force="$3"
 interface="$2"
 CONF_DIR="/etc/monitored-mode/"
 STATUS_FILE="$CONF_DIR/started-$interface"
@@ -30,19 +31,26 @@ check_interface() {
 
 
 validate_interface() {
-	check_interface $interface
-	local interface_status=$?
+    check_interface $interface
+    local interface_status=$?
 
-	if [[ $interface_status == 0 ]]; then
-		echo "Interface not valid!"
-		exit
-	
-	elif [[ $interface_status == 2 ]]; then
-		echo "Interface $interface is down, bring it up or use another interface!"
-		exit
+    if [ $interface_status == 0 ]; then
+        echo "Interface not valid!"
+        exit
 
-	fi
+    elif [ $interface_status == 2 ]; then
+        if [ "$force" != "force" ]; then
+            echo "Interface $interface is down, bring it up or use 'force' to continue anyway!"
+            exit
+
+        else
+            echo "Interface $interface is down, trying to get it up and continuing..."
+            ifconfig $interface up
+			
+        fi
+    fi
 }
+
 
 
 
@@ -51,7 +59,6 @@ start() {
 	systemctl stop networking
 	
 	airmon-ng check kill
-	echo airmon-ng start $interface
 	airmon-ng start $interface
 
 	touch $STATUS_FILE
@@ -91,15 +98,15 @@ status() {
 }
 
 
-if [[ "$1" == "start" ]]; then
+if [ "$1" == "start" ]; then
 	validate_interface
 	start
 
-elif [[ "$1" == "stop" ]]; then
+elif [ "$1" == "stop" ]; then
 	validate_interface
 	stop
 
-elif [[ "$1" == "status" ]]; then
+elif [ "$1" == "status" ]; then
 	validate_interface
 	status
 
@@ -110,6 +117,6 @@ elif [[ "$1" == "status" ]]; then
 
 else
 	echo "Usage: sudo $0:"
-	echo "               <start|stop|status> <interface>"
+	echo "               <start|stop|status> <interface> [force]"
 fi
 
