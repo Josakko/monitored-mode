@@ -24,7 +24,6 @@ check_interface() {
 
     if ! ip link show "$interface_" | grep -q "state UP"; then
         return 0
-		local interface_valid=1
     fi
 
 	return 1
