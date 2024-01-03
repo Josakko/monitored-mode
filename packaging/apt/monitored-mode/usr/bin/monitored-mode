@@ -1,0 +1,111 @@
+#!/bin/bash
+
+
+interface="$2"
+CONF_DIR="/etc/monitored-mode/"
+STATUS_FILE="$CONF_DIR/started-$interface"
+
+
+if [[ "$(whoami)" != "root" ]]; then
+	echo "Run as root!"
+	exit
+fi
+
+
+
+check_interface() {
+	local interface_=$1
+
+
+    if ! ip link show "$interface_" &> /dev/null; then
+        return 0
+
+    fi
+
+    if ! ip link show "$interface_" | grep -q "state UP"; then
+        return 0
+		local interface_valid=1
+    fi
+
+	return 1
+}
+
+
+validate_interface() {
+	check_interface $interface
+	if [[ $? -eq 0 ]]; then
+		echo "Interface not valid!"
+		exit
+
+	fi
+}
+
+
+
+start() {
+	systemctl stop NetworkManager
+	systemctl stop networking
+	
+	airmon-ng check kill
+	echo airmon-ng start $interface
+	airmon-ng start $interface
+
+	touch $STATUS_FILE
+
+	echo "Interface $interface is now in monitored mode!"
+}
+
+
+stop() {
+	#airmon-ng stop $interface
+
+	ifconfig $interface down
+	iwconfig $interface mode managed
+	ifconfig $interface up
+
+	systemctl start NetworkManager
+	systemctl start networking
+
+	rm -rf $STATUS_FILE
+
+	echo "Interface $interface is now in managed mode!"
+}
+
+
+status() {
+	#mode="$(iw dev $interface info | awk '/type/ {print \$2}')"
+	#echo "Interface $interface is in $mode mode"
+
+	if [ -e "$STATUS_FILE" ]; then
+		echo "Interface $interface is in monitored mode!"
+
+	else
+		echo "Interface $interface is in manmaged mode!"
+
+	fi
+
+}
+
+
+if [[ "$1" == "start" ]]; then
+	validate_interface
+	start
+
+elif [[ "$1" == "stop" ]]; then
+	validate_interface
+	stop
+
+elif [[ "$1" == "status" ]]; then
+	validate_interface
+	status
+
+#elif [[ "$1" == "help" || "$1" == "--help" ]]; then
+#	echo "Usage: $0:"
+#	echo "               <start|stop> <interface>"
+
+
+else
+	echo "Usage: $0:"
+	echo "               <start|stop|status> <interface>"
+fi
+

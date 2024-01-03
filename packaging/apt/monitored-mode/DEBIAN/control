@@ -1,0 +1,7 @@
+Package: monitored-mode
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Josakko, josakko@protonmail.com
+Description: Package for managing interfaces mode

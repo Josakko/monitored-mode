@@ -1,0 +1,5 @@
+#!/bin/sh
+
+#mkdir /etc/monitored-mode
+sudo rm -rf /etc/monitored-mode/*
+
