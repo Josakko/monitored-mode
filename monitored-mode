@@ -105,7 +105,7 @@ elif [[ "$1" == "status" ]]; then
 
 
 else
-	echo "Usage: $0:"
+	echo "Usage: sudo $0:"
 	echo "               <start|stop|status> <interface>"
 fi
 
