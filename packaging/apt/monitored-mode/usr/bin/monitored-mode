@@ -19,7 +19,6 @@ check_interface() {
 
     if ! ip link show "$interface_" &> /dev/null; then
         return 0
-
     fi
 
     if ! ip link show "$interface_" | grep -q "state UP"; then
@@ -39,7 +38,7 @@ validate_interface() {
 	elif [[ $? -eq 2 ]]; then
 		echo "Interface $interface is down, bring it up or use another interface!"
 		exit
-		
+
 	fi
 }
 
