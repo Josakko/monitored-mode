@@ -3,7 +3,7 @@
 
 force="$3"
 interface="$2"
-CONF_DIR="/etc/monitored-mode/"
+CONF_DIR="/etc/monitored-mode"
 STATUS_FILE="$CONF_DIR/started-$interface"
 
 
@@ -61,6 +61,7 @@ start() {
 	airmon-ng check kill
 	airmon-ng start $interface
 
+	mkdir $CONF_DIR
 	touch $STATUS_FILE
 
 	echo "Interface $interface is now in monitored mode!"

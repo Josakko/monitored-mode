@@ -37,6 +37,6 @@ Interface wlan0 is in monitored mode!
 ```sh
 $ sudo monitored-mode help
 Usage: sudo monitored-mode:
-               <start|stop> <interface>
+               <start|stop|status> <interface>
 ```
 
